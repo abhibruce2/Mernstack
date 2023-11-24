@@ -17,7 +17,6 @@ const email = getCookie('email')
    const Get = async (value) => {
     try {
       if (value == undefined || value == "") {
-        console.log("email-------------",email);
         const response = await API.get(`http://localhost:5000/products/${email}`);
         const data = response.data
     setProducts(data)
@@ -92,27 +91,7 @@ Get(e.target.value);
   }) : <h1>No Records Found</h1>
 )
 :
-//   ( data && data.length > 0 ? data.map(element => {
-//     return(
-//       <>
-//       <tr>
-//       <th scope="row">{element.length}</th>
-//       <td>{element.product}</td>
-//       <td>{element.quantity}</td>
-//       <td>{element.price}</td>
-//       <td>{element.discount}</td>
-//       <td>{element.productThumbnail}</td>
-//       <td>
-//       <button onClick={() => {
-//       NavigateTo('/add-product', {state: element});
-//     } }>Edit</button>
-//     </td>
-// </tr>
 
-//     </>
-//     )
-      
-//   }): <h1>Norecords</h1>)
   ""
 
 }
