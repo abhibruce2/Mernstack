@@ -104,7 +104,7 @@ const productSchema = new mongoose.Schema({
 
 
   
-app.get('/products/:email', authorizationFunction , async (req, res ) => {
+app.get('/products/:email', authorizationFunction , async (req, res, next ) => {
     try {
 
       const email = req.params.email ;
@@ -118,7 +118,7 @@ app.get('/products/:email', authorizationFunction , async (req, res ) => {
 
 
 
-  app.put('/changePassword', authorizationFunction,  async (req, res) => {
+  app.put('/changePassword', authorizationFunction,  async (req, res, next) => {
     try {
       const {email, oldPassword, newPassword, retype} = req.body 
       if(newPassword == retype){
@@ -148,7 +148,7 @@ app.get('/products/:email', authorizationFunction , async (req, res ) => {
 
 
 
-  app.post('/addProduct', authorizationFunction,   async (req, res) => {  
+  app.post('/addProduct', authorizationFunction,   async (req, res, next) => {  
     const products = await Product.find({product : req.body.product});
     if(products.length > 0) {
       res.status(400).json({ message: "Product Already Exist" });
@@ -165,7 +165,7 @@ const {base64} = req.body.image
 
 
 
-  app.post('/otp', authorizationFunction, async (req, res) => {  
+  app.post('/otp', authorizationFunction, async (req, res, next) => {  
     const {email} = req.body 
     Users.find({email : email}).then(data => {
       if(data.length > 0 ){
@@ -184,7 +184,7 @@ const {base64} = req.body.image
 
 
 
-  app.put('/updateProduct/:id', authorizationFunction,  async (req, res)=> {
+  app.put('/updateProduct/:id', authorizationFunction,  async (req, res, next)=> {
     const id = req.params.id ;
     const {product, quantity, price, discount, productThumbnail} = req.body
     const data = {
@@ -215,7 +215,7 @@ productThumbnail : productThumbnail
 
   
   
-  app.get('/searchproducts/:productname/:email', authorizationFunction,  async (req, res) => {
+  app.get('/searchproducts/:productname/:email', authorizationFunction,  async (req, res, next) => {
     try {
       const email = req.params.email;
       const productName = req.params.productname
