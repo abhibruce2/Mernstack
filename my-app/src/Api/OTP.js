@@ -2,7 +2,6 @@ import axios from 'axios';
 
 
   export async function Post (formData) {
-    console.log("formData_________________", formData);
     try {
         const response = await axios.post('http://localhost:5000/otp', formData);
 
