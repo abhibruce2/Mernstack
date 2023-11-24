@@ -3,27 +3,22 @@ import { useNavigate  } from 'react-router-dom';
 import axios from "axios";
 import {Button} from 'reactstrap';
 import { getCookie } from "../cookies";
+import { API } from "../Api";
 const Table = (props) => {
-  // const {data} = props;
   const [products,  setProducts] = useState([]);
-  console.log("-------------------------", products);
     const NavigateTo = useNavigate ();
-    // if(data.length > 0){
-    //   setProducts(data)
-    // }
+
     useEffect(() => {
-      console.log("sdilfoisd");
       Get();
    }, [])
 
 const email = getCookie('email')
 
    const Get = async (value) => {
-    console.log("value------------",value);
     try {
       if (value == undefined || value == "") {
         console.log("email-------------",email);
-        const response = await axios.get(`http://localhost:5000/products/${email}`);
+        const response = await API.get(`http://localhost:5000/products/${email}`);
         const data = response.data
     setProducts(data)
       }else{
@@ -75,7 +70,6 @@ Get(e.target.value);
 {products ? 
 (
   products && products.length > 0 ? products.map(element => {
-    console.log("elements----------------", element);
     return(
       <>
       <tr>
@@ -87,7 +81,6 @@ Get(e.target.value);
       <td>{element.productThumbnail}</td>
       <td>
       <button onClick={() => {
-        console.log("element-------------------------->>>>", element);
       NavigateTo('/add-product', {state: element});
     } }>Edit</button>
     </td>
@@ -100,7 +93,6 @@ Get(e.target.value);
 )
 :
 //   ( data && data.length > 0 ? data.map(element => {
-//     console.log("elements----------------", element);
 //     return(
 //       <>
 //       <tr>
@@ -112,7 +104,6 @@ Get(e.target.value);
 //       <td>{element.productThumbnail}</td>
 //       <td>
 //       <button onClick={() => {
-//         console.log("element-------------------------->>>>", element);
 //       NavigateTo('/add-product', {state: element});
 //     } }>Edit</button>
 //     </td>
