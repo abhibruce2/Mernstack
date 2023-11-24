@@ -6,12 +6,24 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 const path = require('path');
 const jwt = require('jsonwebtoken');
+const cors = require('cors');
 
 const app = express() ;
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
+const corsOptions = {
+  origin: "http://localhost:3000",
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "Access-Control-Allow-Credentials",
+  ],
+};
 
+app.use(cors(corsOptions));
 mongoose.connect("mongodb://localhost:27017/project", {useNewUrlParser: true}).then((res) => console.log("Database Connected Successfully")).catch((err) => {console.error(err);})   
 
 const productSchema = new mongoose.Schema({
@@ -27,12 +39,12 @@ const productSchema = new mongoose.Schema({
   app.use(bodyParser.json());
   // Create a model based on the schema
   const Product = mongoose.model('Product', productSchema);
-app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000'); // Specify allowed origins
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    next();
-  });
+// app.use((req, res, next) => {
+//     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000'); // Specify allowed origins
+//     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+//     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+//     next();
+//   });
   const postSchema = new mongoose.Schema({
     name : String, 
     email: String, 
@@ -41,23 +53,22 @@ app.use((req, res, next) => {
     password : String,
     image: String
   });
+
   const crypto = require('crypto');
 
-  const generateSecretKey = () => {
-    return crypto.randomBytes(32).toString('hex');
-  };
+// Generate a random secret key of 32 bytes (256 bits)
+
+
   
-  const secretKey = generateSecretKey();
-  console.log('Generated Secret Key:', secretKey);
-
   function authorizationFunction (req, res, next) {
-
-    const token = req.headers['authorization'];
+    const authHeader = req.headers['authorization'];
+    const bearerToken = authHeader.split(" ")
+    const token = bearerToken[1]
+   
     if (!token) {
         return res.status(401).json({ message: 'Unauthorized: Token not provided' });
     }
-
-    jwt.verify(token, secretKey, (err, user) => {
+    jwt.verify(token, 'secret123', (err, user) => {
         if (err) {
             return res.status(403).json({ message: 'Forbidden: Invalid token' });
         }
@@ -78,27 +89,35 @@ app.use((req, res, next) => {
 
   app.post('/signin',  async (req, res) => {
  const data = req.body
-    const Post = new mongoose.Schema({
-        email: String,
-        password: String,
-      });
-      Users.find(data).then(posts => {
-        if(posts.length === 1){
-          
-            res.status(200).json(data)
+
+      Users.findOne(data).then(posts => {
+        if(posts){
+          const token = jwt.sign({
+            email : data.email,
+            name : data.name
+                  },      
+                  'secret123'
+                  )
+          const fetchData = {
+            data : posts,
+            user: token
+          }
+            res.status(200).json(fetchData)
         } else {
             res.send(400).json({message:"Invalied credentials"})
         }
       }).catch(err => {
-        console.error('Error fetching posts:', err);
+        console.error('Error fetching posts----------:', err);
+
       });
       
   });
 
 
   
-app.get('/products/:email',  async (req, res) => {
+app.get('/products/:email', authorizationFunction , async (req, res, next) => {
     try {
+
       const email = req.params.email ;
       const products = await Product.find({email : email} );
       
@@ -110,7 +129,7 @@ app.get('/products/:email',  async (req, res) => {
 
 
 
-  app.put('/changePassword',  async (req, res) => {
+  app.put('/changePassword', authorizationFunction,  async (req, res) => {
     try {
       const {email, oldPassword, newPassword, retype} = req.body 
       // const password = oldPassword ;
@@ -141,7 +160,7 @@ app.get('/products/:email',  async (req, res) => {
 
 
 
-  app.post('/addProduct',  async (req, res) => {  
+  app.post('/addProduct', authorizationFunction,   async (req, res) => {  
     const products = await Product.find({product : req.body.product});
     if(products.length > 0) {
       res.status(401).json({ message: "Product Already Exist" });
@@ -158,7 +177,7 @@ const {base64} = req.body.image
 
 
 
-  app.post('/otp', async (req, res) => {  
+  app.post('/otp', authorizationFunction, async (req, res) => {  
     const {email} = req.body 
     Users.find({email : email}).then(data => {
       if(data.length > 0 ){
@@ -177,7 +196,7 @@ const {base64} = req.body.image
 
 
 
-  app.put('/updateProduct/:id', async (req, res)=> {
+  app.put('/updateProduct/:id', authorizationFunction,  async (req, res)=> {
     const id = req.params.id ;
     const {product, quantity, price, discount, productThumbnail} = req.body
     const data = {
@@ -208,7 +227,7 @@ productThumbnail : productThumbnail
 
   
   
-  app.get('/searchproducts/:productname/:email', async (req, res) => {
+  app.get('/searchproducts/:productname/:email', authorizationFunction,  async (req, res) => {
     try {
       const email = req.params.email;
       const productName = req.params.productname
