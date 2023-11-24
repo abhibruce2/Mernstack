@@ -37,14 +37,9 @@ const productSchema = new mongoose.Schema({
     email: String
   });
   app.use(bodyParser.json());
-  // Create a model based on the schema
+
   const Product = mongoose.model('Product', productSchema);
-// app.use((req, res, next) => {
-//     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000'); // Specify allowed origins
-//     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-//     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-//     next();
-//   });
+
   const postSchema = new mongoose.Schema({
     name : String, 
     email: String, 
@@ -54,12 +49,7 @@ const productSchema = new mongoose.Schema({
     image: String
   });
 
-  const crypto = require('crypto');
-
-// Generate a random secret key of 32 bytes (256 bits)
-
-
-  
+ 
   function authorizationFunction (req, res, next) {
     const authHeader = req.headers['authorization'];
     const bearerToken = authHeader.split(" ")
@@ -80,7 +70,6 @@ const productSchema = new mongoose.Schema({
   const Users = mongoose.model('users', postSchema);
 
   const storage = multer.memoryStorage();
-  const upload = multer({ storage: storage });
 
   app.post('/posts',  async (req, res) => {  
     const creactedData = await Users.create(req.body)
@@ -115,7 +104,7 @@ const productSchema = new mongoose.Schema({
 
 
   
-app.get('/products/:email', authorizationFunction , async (req, res, next) => {
+app.get('/products/:email', authorizationFunction , async (req, res ) => {
     try {
 
       const email = req.params.email ;
@@ -132,7 +121,6 @@ app.get('/products/:email', authorizationFunction , async (req, res, next) => {
   app.put('/changePassword', authorizationFunction,  async (req, res) => {
     try {
       const {email, oldPassword, newPassword, retype} = req.body 
-      // const password = oldPassword ;
       if(newPassword == retype){
         Users.find({email : email}).then(data => {
           if(data[0].password == req.body.oldPassword){
@@ -143,14 +131,14 @@ app.get('/products/:email', authorizationFunction , async (req, res, next) => {
               console.error('Error fetching posts:', err);
             });
           }else{
-            res.status(401).json({ message: 'your old password and password doesnt match' });
+            res.status(400).json({ message: 'your old password and password doesnt match' });
   
           }
         })
         
        
       }else{
-        res.status(401).json({ message: 'your new password and retype password doesnt match' });
+        res.status(400).json({ message: 'your new password and retype password doesnt match' });
 
       }
     } catch (error) {
@@ -163,7 +151,7 @@ app.get('/products/:email', authorizationFunction , async (req, res, next) => {
   app.post('/addProduct', authorizationFunction,   async (req, res) => {  
     const products = await Product.find({product : req.body.product});
     if(products.length > 0) {
-      res.status(401).json({ message: "Product Already Exist" });
+      res.status(400).json({ message: "Product Already Exist" });
     }else{
 const {base64} = req.body.image
       await Product.create(req.body).then(()=>{
@@ -233,7 +221,7 @@ productThumbnail : productThumbnail
       const productName = req.params.productname
       const products = await Product.find({product : productName, email: email});
       
-      res.json(products); // Send the products as a JSON response
+      res.json(products); 
     } catch (error) {
       res.status(500).json({ message: error.message });
     }

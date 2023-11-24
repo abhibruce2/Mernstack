@@ -12,7 +12,6 @@ const nodemailer = require('nodemailer');
   });
 
 const generatedOTP = Math.floor(100000 + Math.random() * 900000);
-console.log("email-------111-----------",email);
 const mailOptions = {
   from: 'abhibruce2@gmail.com',
   to: `${email}`,
