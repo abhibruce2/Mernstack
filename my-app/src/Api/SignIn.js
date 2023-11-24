@@ -5,8 +5,7 @@ import { API } from '.';
     try {
         const response = await API.post('/signin',{
  }, formData);
-// if(response){
-  console.log("res----------------", response.data);
+
   return response
 // 
 // }

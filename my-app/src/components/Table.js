@@ -1,6 +1,5 @@
 import React, {useState , useEffect} from "react";
 import { useNavigate  } from 'react-router-dom';
-import axios from "axios";
 import {Button} from 'reactstrap';
 import { getCookie } from "../cookies";
 import { API } from "../Api";
@@ -21,7 +20,7 @@ const email = getCookie('email')
         const data = response.data
     setProducts(data)
       }else{
-        const response = await axios.get(`http://localhost:5000/searchproducts/${value}/${email}`);
+        const response = await API.get(`http://localhost:5000/searchproducts/${value}/${email}`);
         const data = response.data
        
         setProducts(data)
